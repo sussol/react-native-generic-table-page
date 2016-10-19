@@ -211,8 +211,8 @@ export class GenericTablePage extends React.Component {
  *      isDisabled: false,
  *    };
  */
-  renderCell() {
-    return 'DEFAULT CELL';
+  renderCell(key, record) {
+    return record[key];
   }
 
   renderHeader() {
