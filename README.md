@@ -10,9 +10,9 @@ The class provided by this library is not a complete implementation, and needs t
 #### getFilteredSortedData(searchTerm, sortBy, isAscending)
 This method should return a refreshed realm results object containing data that matches the given parameters.
 
-### Required Fields
+### Required State
 
-#### this.columns
+#### this.state.columns
 An array of objects defining each of the columns. Each entry must contain the 'key' (string), 'width' (integer), and 'title' (string) of the column. Each may optionally contain 'sortable' (boolean).
 
 ### Optional Methods

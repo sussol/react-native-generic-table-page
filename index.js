@@ -53,6 +53,7 @@ export class GenericTablePage extends React.Component {
       rowHasChanged: (row1, row2) => row1 !== row2,
     });
     this.state = {
+      columns: [],
       dataSource: dataSource,
       searchTerm: '',
       sortBy: '',
@@ -63,7 +64,6 @@ export class GenericTablePage extends React.Component {
       pageContentModalIsOpen: false,
     };
     this.cellRefsMap = {}; // { rowId: reference, rowId: reference, ...}
-    this.columns = null;
     this.dataTableRef = null;
     this.dataTypesSynchronised = [];
     this.databaseListenerId = null;
@@ -218,7 +218,7 @@ export class GenericTablePage extends React.Component {
   renderHeader() {
     const { header, headerCell, rightMostCell, text } = this.props.dataTableStyles;
     const headerCells = [];
-    this.columns.forEach((column, index, columns) => {
+    this.state.columns.forEach((column, index, columns) => {
       let textStyle;
       let cellStyle = index !== columns.length - 1 ? headerCell : [headerCell, rightMostCell];
 
@@ -266,7 +266,7 @@ export class GenericTablePage extends React.Component {
     // Make rows alternate background colour
     const rowStyle = rowId % 2 === 1 ? row : [row, { backgroundColor: 'white' }];
 
-    this.columns.forEach((column, index, columns) => {
+    this.state.columns.forEach((column, index, columns) => {
       let textStyle;
       switch (column.alignText) {
         case 'left':
