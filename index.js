@@ -24,7 +24,7 @@ import { SearchBar } from 'react-native-ui-components';
  * Provides a generic implementation of a standard page in a data-centric app, which
  * contains a searchable table. Should always be overridden, in particular the
  * following methods and instance variables (fields):
- * @method getUpdatedData(searchTerm, sortBy, isAscending) Should return updated data
+ * @method getFilteredSortedData(searchTerm, sortBy, isAscending) Should return updated data
  * @method renderCell(key, record) Should define what to render in a cell with the
  *         											 given column key and database record
  * @method onRowPress(key, rowData) Should define behaviour when a row is pressed,
@@ -171,7 +171,7 @@ export class GenericTablePage extends React.Component {
   refreshData() {
     this.cellRefsMap = {};
     const { dataSource, searchTerm, sortBy, isAscending } = this.state;
-    const data = this.getUpdatedData(searchTerm, sortBy, isAscending);
+    const data = this.getFilteredSortedData(searchTerm, sortBy, isAscending);
     this.setState({ dataSource: dataSource.cloneWithRows(data) });
   }
 
