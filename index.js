@@ -454,8 +454,9 @@ GenericTablePage.propTypes = {
 };
 
 GenericTablePage.defaultProps = {
-  rowHeight: 45,
+  dataTableStyles: {},
   pageStyles: {},
+  rowHeight: 45,
 };
 
 const defaultStyles = StyleSheet.create({
