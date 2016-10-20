@@ -260,7 +260,10 @@ export class GenericTablePage extends React.Component {
 
   renderRow(rowData, sectionId, rowId) {
     const { checkableCell, rightMostCell, row, text } = this.props.dataTableStyles;
-    if (!rowData.isValid()) return null; // Don't render if the row's data has been deleted
+    // If the rowData has the function 'isValid', check it to see the object still exists
+    if (typeof rowData.isValid === 'function' && !rowData.isValid()) {
+      return null; // Don't render if the row's data has been deleted
+    }
     const cells = [];
     const isExpanded = this.state.expandedRows.includes(rowData.id);
     // Make rows alternate background colour
