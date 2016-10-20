@@ -225,14 +225,14 @@ export class GenericTablePage extends React.Component {
       switch (column.alignText) {
         case 'left':
         default:
-          textStyle = [text, defaultStyles.alignTextLeft];
+          textStyle = [defaultStyles.alignTextLeft, text];
           break;
         case 'center':
-          textStyle = [text, defaultStyles.alignTextCenter];
+          textStyle = [defaultStyles.alignTextCenter, text];
           cellStyle = [cellStyle, { justifyContent: 'center' }];
           break;
         case 'right':
-          textStyle = [text, defaultStyles.alignTextRight];
+          textStyle = [defaultStyles.alignTextRight, text];
           cellStyle = [cellStyle, { justifyContent: 'flex-end' }];
           break;
       }
@@ -271,13 +271,13 @@ export class GenericTablePage extends React.Component {
       switch (column.alignText) {
         case 'left':
         default:
-          textStyle = [text, defaultStyles.alignTextLeft];
+          textStyle = [defaultStyles.alignTextLeft, text];
           break;
         case 'center':
-          textStyle = [text, defaultStyles.alignTextCenter];
+          textStyle = [defaultStyles.alignTextCenter, text];
           break;
         case 'right':
-          textStyle = [text, defaultStyles.alignTextRight];
+          textStyle = [defaultStyles.alignTextRight, text];
           break;
       }
 
@@ -426,12 +426,12 @@ export class GenericTablePage extends React.Component {
   render() {
     const { pageStyles } = this.props;
     return (
-      <View style={[pageStyles.pageContentContainer, defaultStyles.pageContentContainer]}>
-        <View style={[pageStyles.container, defaultStyles.container]}>
-          <View style={[pageStyles.pageTopSectionContainer, defaultStyles.pageTopSectionContainer]}>
+      <View style={[defaultStyles.pageContentContainer, pageStyles.pageContentContainer]}>
+        <View style={[defaultStyles.container, pageStyles.container]}>
+          <View style={[defaultStyles.pageTopSectionContainer, pageStyles.pageTopSectionContainer]}>
             <View
-              style={[pageStyles.pageTopLeftSectionContainer,
-                      defaultStyles.pageTopLeftSectionContainer]}
+              style={[defaultStyles.pageTopLeftSectionContainer,
+                      pageStyles.pageTopLeftSectionContainer]}
             >
               {this.renderSearchBar()}
             </View>
@@ -455,6 +455,7 @@ GenericTablePage.propTypes = {
 
 GenericTablePage.defaultProps = {
   rowHeight: 45,
+  pageStyles: {},
 };
 
 const defaultStyles = StyleSheet.create({
