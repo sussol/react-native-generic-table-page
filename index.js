@@ -66,7 +66,6 @@ export class GenericTablePage extends React.Component {
     this.cellRefsMap = {}; // { rowId: reference, rowId: reference, ...}
     this.dataTableRef = null;
     this.dataTypesSynchronised = [];
-    this.databaseListenerId = null;
     this.onSearchChange = this.onSearchChange.bind(this);
     this.onColumnSort = this.onColumnSort.bind(this);
     this.openModal = this.openModal.bind(this);
@@ -89,10 +88,6 @@ export class GenericTablePage extends React.Component {
    */
   componentWillReceiveProps(props) {
     if (!this.props.topRoute && props.topRoute) this.refreshData();
-  }
-
-  componentWillUnmount() {
-    this.props.database.removeListener(this.databaseListenerId);
   }
 
   onSearchChange(event) {
@@ -447,7 +442,6 @@ export class GenericTablePage extends React.Component {
 }
 
 GenericTablePage.propTypes = {
-  database: React.PropTypes.object.isRequired,
   topRoute: React.PropTypes.bool,
   rowHeight: React.PropTypes.number,
   pageStyles: React.PropTypes.object,
