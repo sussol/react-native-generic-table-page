@@ -25,3 +25,43 @@ Carries out any response required to a row being pressed. Should not be overridd
 
 #### onEndEditing(key, rowData, newValue)
 Carries out any response required when an editable cell is edited. The obvious example is saving the new value to the database.
+
+### Optional Props
+
+#### topRoute (boolean)
+Whether this page is on top of the navigation stack. Determines whether it will refresh the page's data if a change is detected.
+
+#### rowHeight (integer)
+Sets the height of the rows in the data table.
+
+#### pageStyles (object)
+Sets the style of components within the page, including
+* searchBar (style of the search bar, see github.com/sussol/react-native-ui-components for details)
+* pageContentContainer (style of the outer containing View)
+* container (style of the inner containing View)
+* pageTopSectionContainer (style of the container View above the data table)
+* pageTopLeftSectionContainer (style of the View within the pageTopSectionContainer View, contains the search bar by default)
+
+#### dataTableStyles (object)
+Sets the style of components within the data table, including
+* dataTable
+* cell
+* header
+* headerCell
+* rightMostCell
+* text
+See github.com/sussol/react-native-data-table for details
+
+#### searchBarColor (string)
+Sets the color of the search bar, see github.com/sussol/react-native-ui-components for details
+
+#### colors (object)
+Sets the color of components within the data table, including
+* checkableCellDisabled
+* checkableCellChecked
+* checkableCellUnchecked
+* editableCellUnderline
+
+#### footerData (object)
+If passed in, defines data to display in a footer row that is always rendered at the bottom of the
+data table

@@ -211,6 +211,10 @@ export class GenericTablePage extends React.Component {
   }
 
   renderHeader() {
+    // If no columns have titles, don't render a header
+    if (!this.state.columns.find((column) => column.title && column.title.length > 0)) {
+      return null;
+    }
     const { header, headerCell, rightMostCell, text } = this.props.dataTableStyles;
     const headerCells = [];
     this.state.columns.forEach((column, index, columns) => {
@@ -404,7 +408,10 @@ export class GenericTablePage extends React.Component {
   // of the table.
   renderFooter() {
     return (
-      <View style={{ height: 8 * this.props.rowHeight }} />
+      <View>
+        {this.props.footerData && this.renderRow(this.props.footerData, 0, 0)}
+        <View style={{ height: 8 * this.props.rowHeight }} />
+      </View>
     );
   }
 
@@ -442,6 +449,7 @@ export class GenericTablePage extends React.Component {
 }
 
 GenericTablePage.propTypes = {
+  footerData: React.PropTypes.object,
   topRoute: React.PropTypes.bool,
   rowHeight: React.PropTypes.number,
   pageStyles: React.PropTypes.object,
