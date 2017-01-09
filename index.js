@@ -20,6 +20,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { ListView } from 'realm/react-native';
 import { SearchBar } from 'react-native-ui-components';
 
+import { filterObjectArray, sortObjectArray } from './utilities';
+
 /**
  * Provides a generic implementation of a standard page in a data-centric app, which
  * contains a searchable table. Should always be overridden, in particular the
@@ -53,10 +55,10 @@ export class GenericTablePage extends React.Component {
       rowHasChanged: (row1, row2) => row1 !== row2,
     });
     this.state = {
-      columns: [],
+      columns: props.columns || [],
       dataSource: dataSource,
       searchTerm: '',
-      sortBy: '',
+      sortBy: props.defaultSortKey || '',
       isAscending: true,
       selection: [],
       expandedRows: [],
@@ -166,8 +168,16 @@ export class GenericTablePage extends React.Component {
   refreshData() {
     this.cellRefsMap = {};
     const { dataSource, searchTerm, sortBy, isAscending } = this.state;
-    const data = this.getFilteredSortedData(searchTerm, sortBy, isAscending);
-    this.setState({ dataSource: dataSource.cloneWithRows(data) });
+    const filteredSortedData = this.getFilteredSortedData(searchTerm, sortBy, isAscending);
+    this.setState({ dataSource: dataSource.cloneWithRows(filteredSortedData) });
+  }
+
+  getFilteredSortedData(searchTerm, sortBy, isAscending) {
+    const { data, searchKey } = this.props;
+    // Filter by searchKey, or if none was passed in props, return full set of data
+    let results = searchKey ? filterObjectArray(data, searchKey, searchTerm) : data;
+    results = sortObjectArray(results, sortBy, isAscending);
+    return results;
   }
 
 /**
@@ -386,6 +396,7 @@ export class GenericTablePage extends React.Component {
         onPress={
           this.renderExpansion && (() => this.onExpandablePress(rowData))
             || this.onRowPress && (() => this.onRowPress(rowData))
+            || this.props.onRowPress && (() => this.props.onRowPress(rowData))
         }
       >
         {cells}
@@ -429,17 +440,19 @@ export class GenericTablePage extends React.Component {
   }
 
   render() {
-    const { pageStyles } = this.props;
+    const { hideSearchBar, pageStyles } = this.props;
     return (
       <View style={[defaultStyles.pageContentContainer, pageStyles.pageContentContainer]}>
         <View style={[defaultStyles.container, pageStyles.container]}>
           <View style={[defaultStyles.pageTopSectionContainer, pageStyles.pageTopSectionContainer]}>
-            <View
-              style={[defaultStyles.pageTopLeftSectionContainer,
-                      pageStyles.pageTopLeftSectionContainer]}
-            >
-              {this.renderSearchBar()}
-            </View>
+            {!hideSearchBar &&
+              <View
+                style={[defaultStyles.pageTopLeftSectionContainer,
+                        pageStyles.pageTopLeftSectionContainer]}
+              >
+                {this.renderSearchBar()}
+              </View>
+            }
           </View>
           {this.renderDataTable()}
         </View>
@@ -449,13 +462,19 @@ export class GenericTablePage extends React.Component {
 }
 
 GenericTablePage.propTypes = {
-  footerData: React.PropTypes.object,
-  topRoute: React.PropTypes.bool,
-  rowHeight: React.PropTypes.number,
-  pageStyles: React.PropTypes.object,
-  dataTableStyles: React.PropTypes.object,
-  searchBarColor: React.PropTypes.string,
   colors: React.PropTypes.object,
+  columns: React.PropTypes.array,
+  data: React.PropTypes.array,
+  dataTableStyles: React.PropTypes.object,
+  defaultSortKey: React.PropTypes.string,
+  footerData: React.PropTypes.object,
+  hideSearchBar: React.PropTypes.bool,
+  onRowPress: React.PropTypes.func,
+  pageStyles: React.PropTypes.object,
+  rowHeight: React.PropTypes.number,
+  searchBarColor: React.PropTypes.string,
+  searchKey: React.PropTypes.string,
+  topRoute: React.PropTypes.bool,
 };
 
 GenericTablePage.defaultProps = {

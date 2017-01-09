@@ -3,19 +3,17 @@
 Provides a generic implementation of a standard page in a data-centric app, containing a table of data, a search bar.
 contains a searchable table.
 
-The class provided by this library is not a complete implementation, and needs to be extended by an implementing class. Details of what can/must be overridden follow. See inline comments in index.js for more info.
+The class provided by this library will often be extended by an implementing class. Details of what can be overridden follow. See inline comments in index.js for more info.
 
-### Required Methods
+### Required
 
-#### getFilteredSortedData(searchTerm, sortBy, isAscending)
-This method should return a refreshed realm results object containing data that matches the given parameters.
-
-### Required State
-
-#### this.state.columns
+#### this.state.columns or 'columns' as a prop
 An array of objects defining each of the columns. Each entry must contain the 'key' (string), 'width' (integer), and 'title' (string) of the column. Each may optionally contain 'sortable' (boolean).
 
 ### Optional Methods
+
+#### getFilteredSortedData(searchTerm, sortBy, isAscending)
+This method should return a refreshed realm results object containing data that matches the given parameters. If not overridden, must pass in 'data' to be sorted and filtered using the default method
 
 #### renderCell(key, record)
 This method defines how each cell is rendered, given the column key and database record. The default method returns a simple string, which will be rendered in a static text cell. Alternative formats are listed in the method comment within index.js
@@ -65,3 +63,19 @@ Sets the color of components within the data table, including
 #### footerData (object)
 If passed in, defines data to display in a footer row that is always rendered at the bottom of the
 data table
+
+#### columns (array)
+If not defined as part of the extending class, columns can be passed through in props (see above)
+
+#### data (array)
+If the extending class does not override getFilteredSortedData, data must be passed through in props,
+ready for sorting and filtering based on the optional defaultSortKey and searchKey props
+
+#### defaultSortKey (string)
+Defines the column to sort on by default
+
+#### searchKey (string)
+Defines the column to filter on when the user types in the search bar
+
+#### onRowPress (function)
+Called when a row is pressed with the rowData as the single argument
