@@ -92,9 +92,8 @@ export class GenericTablePage extends React.Component {
     if (!this.props.topRoute && props.topRoute) this.refreshData();
   }
 
-  onSearchChange(event) {
-    const term = event.nativeEvent.text;
-    this.setState({ searchTerm: term }, () => {
+  onSearchChange(searchTerm) {
+    this.setState({ searchTerm: searchTerm }, () => {
       this.refreshData();
       if (this.dataTableRef) this.dataTableRef.scrollTo({ y: 0, animated: false });
     });
@@ -408,7 +407,7 @@ export class GenericTablePage extends React.Component {
     const { pageStyles, searchBarColor } = this.props;
     return (
       <SearchBar
-        onChange={(event) => this.onSearchChange(event)}
+        onChange={this.onSearchChange}
         style={pageStyles.searchBar}
         color={searchBarColor}
       />);
