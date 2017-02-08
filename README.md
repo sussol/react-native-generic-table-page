@@ -1,35 +1,36 @@
 # react-native-generic-table-page
 
-![Example generic table page](https://cloud.githubusercontent.com/assets/1274422/22757270/0a2fe956-eeaf-11e6-9838-6e5c0c6961e3.png)
-
 Provides a generic implementation of a standard page in a data-centric app, containing a table of data, a search bar.
 contains a searchable table.
 
-The class provided by this library will often be extended by an implementing class. Details of what can be overridden follow. See inline comments in index.js for more info.
+![Example generic table page](https://cloud.githubusercontent.com/assets/1274422/22757270/0a2fe956-eeaf-11e6-9838-6e5c0c6961e3.png)
 
-### Required
+## Installation
 
-#### this.state.columns or 'columns' as a prop
+The customisation can be done through either composition or inheritance. Fitting with react paradigms, we recommend using composition. We have used inheritance successfully in the mSupply mobile project, but we would prefer that future projects simply expose more props and use composition rather than using the method overriding.
+
+### Required Props
+
+#### columns (array), or assign this.state.columns in the constructor if using inheritance
 An array of objects defining each of the columns. Each entry must contain the 'key' (string), 'width' (integer), and 'title' (string) of the column. Each may optionally contain 'sortable' (boolean).
 
-### Optional Methods
-
-#### getFilteredSortedData(searchTerm, sortBy, isAscending)
-This method should return a refreshed realm results object containing data that matches the given parameters. If not overridden, must pass in 'data' to be sorted and filtered using the default method
-
-#### renderCell(key, record)
-This method defines how each cell is rendered, given the column key and database record. The default method returns a simple string, which will be rendered in a static text cell. Alternative formats are listed in the method comment within index.js
-
-#### onRowPress(key, rowData)
-Carries out any response required to a row being pressed. Should not be overridden if the rows are not pressable.
-
-#### onEndEditing(key, rowData, newValue)
-Carries out any response required when an editable cell is edited. The obvious example is saving the new value to the database.
+#### data (array), or override getFilteredSortedData if using inheritance (see [below](#optional-methods))
+Defines the data displayed in the table, ready for sorting and filtering
 
 ### Optional Props
 
-#### topRoute (boolean)
-Whether this page is on top of the navigation stack. Determines whether it will refresh the page's data if a change is detected.
+#### defaultSortKey (string)
+Defines the column to sort on by default
+
+#### searchKey (string)
+Defines the column to filter on when the user types in the search bar
+
+#### footerData (object)
+If passed in, defines data to display in a footer row that is always rendered at the bottom of the
+data table
+
+#### onRowPress (function)
+Called when a row is pressed with the rowData as the single argument
 
 #### rowHeight (integer)
 Sets the height of the rows in the data table.
@@ -62,22 +63,20 @@ Sets the color of components within the data table, including
 * checkableCellUnchecked
 * editableCellUnderline
 
-#### footerData (object)
-If passed in, defines data to display in a footer row that is always rendered at the bottom of the
-data table
+#### topRoute (boolean)
+Whether this page is on top of the navigation stack. Determines whether it will refresh the page's data if a change is detected.
 
-#### columns (array)
-If not defined as part of the extending class, columns can be passed through in props (see above)
+### Optional Methods (If Using Inheritance)
+If inheriting, the class provided by this library will be extended by an implementing class. This implementation class has the opportunity to override methods to customise the look and functionality of the generic table page. See inline comments in index.js for more info.
 
-#### data (array)
-If the extending class does not override getFilteredSortedData, data must be passed through in props,
-ready for sorting and filtering based on the optional defaultSortKey and searchKey props
+#### getFilteredSortedData(searchTerm, sortBy, isAscending)
+This method should return a refreshed realm results object containing data that matches the given parameters. If not overridden, must pass in 'data' to be sorted and filtered using the default method
 
-#### defaultSortKey (string)
-Defines the column to sort on by default
+#### renderCell(key, record)
+This method defines how each cell is rendered, given the column key and database record. The default method returns a simple string, which will be rendered in a static text cell. Alternative formats are listed in the method comment within index.js
 
-#### searchKey (string)
-Defines the column to filter on when the user types in the search bar
+#### onRowPress(key, rowData)
+Carries out any response required to a row being pressed. Should not be overridden if the rows are not pressable.
 
-#### onRowPress (function)
-Called when a row is pressed with the rowData as the single argument
+#### onEndEditing(key, rowData, newValue)
+Carries out any response required when an editable cell is edited. The obvious example is saving the new value to the database.
