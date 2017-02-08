@@ -1,5 +1,7 @@
 # react-native-generic-table-page
 
+![Example generic table page](https://cloud.githubusercontent.com/assets/1274422/22757270/0a2fe956-eeaf-11e6-9838-6e5c0c6961e3.png)
+
 Provides a generic implementation of a standard page in a data-centric app, containing a table of data, a search bar.
 contains a searchable table.
 
