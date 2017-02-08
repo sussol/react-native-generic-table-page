@@ -7,7 +7,13 @@ contains a searchable table.
 
 ## Installation
 
-The customisation can be done through either composition or inheritance. Fitting with react paradigms, we recommend using composition. We have used inheritance successfully in the mSupply mobile project, but we would prefer that future projects simply expose more props and use composition rather than using the method overriding.
+```npm install --save react-native-generic-table-page```
+
+## Usage
+
+The customisation can be done through either composition or inheritance. We recommend using composition. We have used inheritance successfully in the mSupply mobile project, but to keep a consistent react-style architecture we would prefer that future projects simply expose more props and use composition rather than using the method overriding.
+
+For working examples of usage, see [MoneyMob](https://github.com/sussol/moneymob) for composition, and [mSupply Mobile](https://github.com/sussol/mobile) for inheritance.
 
 ### Required Props
 
