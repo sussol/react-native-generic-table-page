@@ -55,7 +55,6 @@ export class GenericTablePage extends React.Component {
       rowHasChanged: (row1, row2) => row1 !== row2,
     });
     this.state = {
-      columns: props.columns || [],
       dataSource: dataSource,
       searchTerm: '',
       sortBy: props.defaultSortKey || '',
@@ -90,6 +89,9 @@ export class GenericTablePage extends React.Component {
    */
   componentWillReceiveProps(props) {
     if (!this.props.topRoute && props.topRoute) this.refreshData();
+    if (this.props.data !== props.data) {
+      this.setData(props.data);
+    }
   }
 
   onSearchChange(searchTerm) {
@@ -166,9 +168,13 @@ export class GenericTablePage extends React.Component {
 
   refreshData() {
     this.cellRefsMap = {};
-    const { dataSource, searchTerm, sortBy, isAscending } = this.state;
+    const { searchTerm, sortBy, isAscending } = this.state;
     const filteredSortedData = this.getFilteredSortedData(searchTerm, sortBy, isAscending);
-    this.setState({ dataSource: dataSource.cloneWithRows(filteredSortedData) });
+    this.setData(filteredSortedData);
+  }
+
+  setData(data) {
+    this.setState({ dataSource: this.state.dataSource.cloneWithRows(data) });
   }
 
   getFilteredSortedData(searchTerm, sortBy, isAscending) {
@@ -221,12 +227,12 @@ export class GenericTablePage extends React.Component {
 
   renderHeader() {
     // If no columns have titles, don't render a header
-    if (!this.state.columns.find((column) => column.title && column.title.length > 0)) {
+    if (!this.props.columns.find((column) => column.title && column.title.length > 0)) {
       return null;
     }
     const { header, headerCell, rightMostCell, text } = this.props.dataTableStyles;
     const headerCells = [];
-    this.state.columns.forEach((column, index, columns) => {
+    this.props.columns.forEach((column, index, columns) => {
       let textStyle;
       let cellStyle = index !== columns.length - 1 ? headerCell : [headerCell, rightMostCell];
 
@@ -277,7 +283,7 @@ export class GenericTablePage extends React.Component {
     // Make rows alternate background colour
     const rowStyle = rowId % 2 === 1 ? row : [row, { backgroundColor: 'white' }];
 
-    this.state.columns.forEach((column, index, columns) => {
+    this.props.columns.forEach((column, index, columns) => {
       let textStyle;
       switch (column.alignText) {
         case 'left':
@@ -477,6 +483,7 @@ GenericTablePage.propTypes = {
 };
 
 GenericTablePage.defaultProps = {
+  columns: [],
   dataTableStyles: {},
   pageStyles: {},
   rowHeight: 45,
