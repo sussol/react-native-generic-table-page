@@ -404,10 +404,10 @@ export class GenericTablePage extends React.Component {
   }
 
   renderSearchBar() {
-    const { pageStyles, searchBarColor } = this.props;
+    const { pageStyles, onSearchChange, searchBarColor } = this.props;
     return (
       <SearchBar
-        onChange={this.onSearchChange}
+        onChange={onSearchChange || this.onSearchChange}
         style={pageStyles.searchBar}
         color={searchBarColor}
       />);
@@ -439,12 +439,12 @@ export class GenericTablePage extends React.Component {
   }
 
   render() {
-    const { hideSearchBar, pageStyles } = this.props;
+    const { searchKey, onSearchChange, pageStyles } = this.props;
     return (
       <View style={[defaultStyles.pageContentContainer, pageStyles.pageContentContainer]}>
         <View style={[defaultStyles.container, pageStyles.container]}>
           <View style={[defaultStyles.pageTopSectionContainer, pageStyles.pageTopSectionContainer]}>
-            {!hideSearchBar &&
+            {(searchKey || onSearchChange) &&
               <View
                 style={[defaultStyles.pageTopLeftSectionContainer,
                         pageStyles.pageTopLeftSectionContainer]}
@@ -467,8 +467,8 @@ GenericTablePage.propTypes = {
   dataTableStyles: React.PropTypes.object,
   defaultSortKey: React.PropTypes.string,
   footerData: React.PropTypes.object,
-  hideSearchBar: React.PropTypes.bool,
   onRowPress: React.PropTypes.func,
+  onSearchChange: React.PropTypes.func,
   pageStyles: React.PropTypes.object,
   rowHeight: React.PropTypes.number,
   searchBarColor: React.PropTypes.string,

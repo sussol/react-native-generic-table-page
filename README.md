@@ -31,6 +31,9 @@ Defines the column to sort on by default
 #### searchKey (string)
 Defines the column to filter on when the user types in the search bar
 
+#### onSearchChange (function)
+Callback with search term when user enters different info into search bar. In case you want to filter data externally.
+
 #### footerData (object)
 If passed in, defines data to display in a footer row that is always rendered at the bottom of the
 data table
