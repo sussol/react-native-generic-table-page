@@ -281,7 +281,9 @@ export class GenericTablePage extends React.Component {
     const cells = [];
     const isExpanded = this.state.expandedRows.includes(rowData.id);
     // Make rows alternate background colour
-    const rowStyle = rowId % 2 === 1 ? row : [row, { backgroundColor: 'white' }];
+    const rowStyle = rowId % 2 === 1 ?
+                     row :
+                     [row, { backgroundColor: row.alternateBackgroundColor || 'white' }];
 
     this.props.columns.forEach((column, index, columns) => {
       let textStyle;
