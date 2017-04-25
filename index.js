@@ -417,6 +417,7 @@ export class GenericTablePage extends React.Component {
         onChange={onSearchChange || this.onSearchChange}
         style={pageStyles.searchBar}
         color={searchBarColor}
+        placeholderText={this.props.searchBarPlaceholderText}
       />);
   }
 
@@ -479,6 +480,7 @@ GenericTablePage.propTypes = {
   pageStyles: React.PropTypes.object,
   rowHeight: React.PropTypes.number,
   searchBarColor: React.PropTypes.string,
+  searchBarPlaceholderText: React.PropTypes.string,
   searchKey: React.PropTypes.string,
   topRoute: React.PropTypes.bool,
 };
