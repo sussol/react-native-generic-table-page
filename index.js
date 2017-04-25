@@ -90,7 +90,7 @@ export class GenericTablePage extends React.Component {
   componentWillReceiveProps(props) {
     if (!this.props.topRoute && props.topRoute) this.refreshData();
     if (this.props.data !== props.data) {
-      this.setData(props.data);
+      this.refreshData(props);
     }
   }
 
@@ -166,10 +166,13 @@ export class GenericTablePage extends React.Component {
     }
   }
 
-  refreshData() {
+  refreshData(props) {
     this.cellRefsMap = {};
     const { searchTerm, sortBy, isAscending } = this.state;
-    const filteredSortedData = this.getFilteredSortedData(searchTerm, sortBy, isAscending);
+    const filteredSortedData = this.getFilteredSortedData(searchTerm,
+                                                          sortBy,
+                                                          isAscending,
+                                                          props || this.props);
     this.setData(filteredSortedData);
   }
 
@@ -177,8 +180,8 @@ export class GenericTablePage extends React.Component {
     this.setState({ dataSource: this.state.dataSource.cloneWithRows(data) });
   }
 
-  getFilteredSortedData(searchTerm, sortBy, isAscending) {
-    const { data, searchKey } = this.props;
+  getFilteredSortedData(searchTerm, sortBy, isAscending, props) {
+    const { data, searchKey } = props;
     // Filter by searchKey, or if none was passed in props, return full set of data
     let results = searchKey ? filterObjectArray(data, searchKey, searchTerm) : data;
     results = sortObjectArray(results, sortBy, isAscending);
