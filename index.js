@@ -18,7 +18,7 @@ import {
   Row,
 } from 'react-native-data-table';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { ListView } from 'realm/react-native';
+import { ListView } from 'realm/react-native'; // TODO remove realm as dependency
 import { SearchBar } from 'react-native-ui-components';
 
 import { filterObjectArray, sortObjectArray } from './utilities';
@@ -59,19 +59,14 @@ export class GenericTablePage extends React.Component {
       dataSource: dataSource,
       searchTerm: '',
       sortBy: props.defaultSortKey || '',
-      isAscending: true,
+      isAscending: props.defaultSortDirection ? props.defaultSortDirection === 'ascending' : true,
       selection: [],
       expandedRows: [],
-      modalKey: null,
-      pageContentModalIsOpen: false,
     };
     this.cellRefsMap = {}; // { rowId: reference, rowId: reference, ...}
     this.dataTableRef = null;
-    this.dataTypesSynchronised = [];
     this.onSearchChange = this.onSearchChange.bind(this);
     this.onColumnSort = this.onColumnSort.bind(this);
-    this.openModal = this.openModal.bind(this);
-    this.closeModal = this.closeModal.bind(this);
     this.focusNextField = this.focusNextField.bind(this);
     this.renderFooter = this.renderFooter.bind(this);
     this.renderHeader = this.renderHeader.bind(this);
@@ -84,15 +79,8 @@ export class GenericTablePage extends React.Component {
     this.refreshData();
   }
 
-  /**
-   * Refresh data every time the page becomes the top route, so that changes will show
-   * when a user returns to the page using the back button.
-   */
-  componentWillReceiveProps(props) {
-    if (!this.props.topRoute && props.topRoute) this.refreshData();
-    if (this.props.data !== props.data) {
-      this.refreshData(props);
-    }
+  componentWillReceiveProps(nextProps) {
+    if (this.props.data !== nextProps.data) this.setDataSource(nextProps.data);
   }
 
   onSearchChange(searchTerm) {
@@ -125,6 +113,7 @@ export class GenericTablePage extends React.Component {
       newSelection.push(rowData.id);
     }
     this.setState({ selection: newSelection });
+    this.onSelectionChange && this.onSelectionChange(newSelection);
   }
 
   /**
@@ -141,12 +130,8 @@ export class GenericTablePage extends React.Component {
     this.setState({ expandedRows: newExpandedRows });
   }
 
-  openModal(key) {
-    this.setState({ modalKey: key, pageContentModalIsOpen: true });
-  }
-
-  closeModal() {
-    this.setState({ pageContentModalIsOpen: false });
+  setDataSource(data) {
+    this.setState({ dataSource: this.state.dataSource.cloneWithRows(data) });
   }
 
   scrollTableToRow(rowId) {
@@ -167,26 +152,23 @@ export class GenericTablePage extends React.Component {
     }
   }
 
-  refreshData(props) {
+  refreshData() {
     this.cellRefsMap = {};
+    if (this.props.refreshData) {
+      const { searchTerm, sortBy, isAscending } = this.state;
+      this.props.refreshData(searchTerm, sortBy, isAscending);
+    } else { // No onRefreshData method passed through props, run default filter/sort
+      this.filterAndSortData();
+    }
+  }
+
+  filterAndSortData() {
     const { searchTerm, sortBy, isAscending } = this.state;
-    const filteredSortedData = this.getFilteredSortedData(searchTerm,
-                                                          sortBy,
-                                                          isAscending,
-                                                          props || this.props);
-    this.setData(filteredSortedData);
-  }
-
-  setData(data) {
-    this.setState({ dataSource: this.state.dataSource.cloneWithRows(data) });
-  }
-
-  getFilteredSortedData(searchTerm, sortBy, isAscending, props) {
-    const { data, searchKey } = props;
+    const { data, searchKey } = this.props;
     // Filter by searchKey, or if none was passed in props, return full set of data
     let results = searchKey ? filterObjectArray(data, searchKey, searchTerm) : data;
     results = sortObjectArray(results, sortBy, isAscending);
-    return results;
+    this.setDataSource(results);
   }
 
 /**
@@ -226,7 +208,7 @@ export class GenericTablePage extends React.Component {
  *    };
  */
   renderCell(key, record) {
-    return record[key];
+    return this.props.renderCell ? this.props.renderCell(key, record) : record[key];
   }
 
   renderHeader() {
@@ -398,16 +380,17 @@ export class GenericTablePage extends React.Component {
       }
       cells.push(cell);
     });
+    let onPressRow;
+    if (this.props.renderExpansion) onPressRow = () => this.onExpandablePress(rowData);
+    else if (this.props.onRowPress) onPressRow = () => this.props.onRowPress(rowData);
     return (
       <Row
         style={rowStyle}
-        renderExpansion={this.renderExpansion && (() => this.renderExpansion(rowData))}
+        renderExpansion={this.props.renderExpansion ?
+                         () => this.props.renderExpansion(rowData) :
+                         undefined}
         isExpanded={isExpanded}
-        onPress={
-          this.renderExpansion && (() => this.onExpandablePress(rowData))
-            || this.onRowPress && (() => this.onRowPress(rowData))
-            || this.props.onRowPress && (() => this.props.onRowPress(rowData))
-        }
+        onPress={onPressRow}
       >
         {cells}
       </Row>
@@ -415,10 +398,10 @@ export class GenericTablePage extends React.Component {
   }
 
   renderSearchBar() {
-    const { pageStyles, onSearchChange, searchBarColor } = this.props;
+    const { pageStyles, searchBarColor } = this.props;
     return (
       <SearchBar
-        onChange={onSearchChange || this.onSearchChange}
+        onChange={this.onSearchChange}
         style={pageStyles.searchBar}
         color={searchBarColor}
         placeholder={this.props.searchBarPlaceholderText}
@@ -451,21 +434,37 @@ export class GenericTablePage extends React.Component {
   }
 
   render() {
-    const { searchKey, onSearchChange, pageStyles } = this.props;
+    const {
+      searchKey,
+      refreshData,
+      pageStyles,
+      renderTopLeftComponent,
+      renderTopRightComponent,
+    } = this.props;
     return (
       <View style={[defaultStyles.pageContentContainer, pageStyles.pageContentContainer]}>
         <View style={[defaultStyles.container, pageStyles.container]}>
           <View style={[defaultStyles.pageTopSectionContainer, pageStyles.pageTopSectionContainer]}>
-            {(searchKey || onSearchChange) &&
+            {(searchKey || refreshData || renderTopLeftComponent) &&
               <View
                 style={[defaultStyles.pageTopLeftSectionContainer,
                         pageStyles.pageTopLeftSectionContainer]}
               >
-                {this.renderSearchBar()}
+                {renderTopLeftComponent && renderTopLeftComponent()}
+                {(searchKey || refreshData) && this.renderSearchBar()}
+              </View>
+            }
+            {(renderTopRightComponent) &&
+              <View
+                style={[defaultStyles.pageTopRightSectionContainer,
+                        pageStyles.pageTopRightSectionContainer]}
+              >
+                {renderTopRightComponent()}
               </View>
             }
           </View>
           {this.renderDataTable()}
+          {this.props.children}
         </View>
       </View>
     );
@@ -473,15 +472,24 @@ export class GenericTablePage extends React.Component {
 }
 
 GenericTablePage.propTypes = {
+  children: PropTypes.any,
   colors: PropTypes.object,
   columns: PropTypes.array,
-  data: PropTypes.array,
+  data: PropTypes.any,
   dataTableStyles: PropTypes.object,
+  defaultSortDirection: PropTypes.string,
   defaultSortKey: PropTypes.string,
   footerData: PropTypes.object,
+  getFilteredSortedData: PropTypes.func,
   onRowPress: PropTypes.func,
   onSearchChange: PropTypes.func,
+  onSelectionChange: PropTypes.func,
   pageStyles: PropTypes.object,
+  refreshData: PropTypes.func,
+  renderCell: PropTypes.func,
+  renderExpansion: PropTypes.func,
+  renderTopLeftComponent: PropTypes.func,
+  renderTopRightComponent: PropTypes.func,
   rowHeight: PropTypes.number,
   searchBarColor: PropTypes.string,
   searchBarPlaceholderText: PropTypes.string,
