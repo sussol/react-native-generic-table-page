@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import { StyleSheet, View } from 'react-native';
 import {
   Cell,
@@ -472,20 +473,20 @@ export class GenericTablePage extends React.Component {
 }
 
 GenericTablePage.propTypes = {
-  colors: React.PropTypes.object,
-  columns: React.PropTypes.array,
-  data: React.PropTypes.array,
-  dataTableStyles: React.PropTypes.object,
-  defaultSortKey: React.PropTypes.string,
-  footerData: React.PropTypes.object,
-  onRowPress: React.PropTypes.func,
-  onSearchChange: React.PropTypes.func,
-  pageStyles: React.PropTypes.object,
-  rowHeight: React.PropTypes.number,
-  searchBarColor: React.PropTypes.string,
-  searchBarPlaceholderText: React.PropTypes.string,
-  searchKey: React.PropTypes.string,
-  topRoute: React.PropTypes.bool,
+  colors: PropTypes.object,
+  columns: PropTypes.array,
+  data: PropTypes.array,
+  dataTableStyles: PropTypes.object,
+  defaultSortKey: PropTypes.string,
+  footerData: PropTypes.object,
+  onRowPress: PropTypes.func,
+  onSearchChange: PropTypes.func,
+  pageStyles: PropTypes.object,
+  rowHeight: PropTypes.number,
+  searchBarColor: PropTypes.string,
+  searchBarPlaceholderText: PropTypes.string,
+  searchKey: PropTypes.string,
+  topRoute: PropTypes.bool,
 };
 
 GenericTablePage.defaultProps = {
