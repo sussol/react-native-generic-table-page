@@ -113,7 +113,7 @@ export class GenericTablePage extends React.Component {
       newSelection.push(rowData.id);
     }
     this.setState({ selection: newSelection });
-    this.onSelectionChange && this.onSelectionChange(newSelection);
+    if (this.props.onSelectionChange) this.props.onSelectionChange(newSelection);
   }
 
   /**
@@ -351,8 +351,8 @@ export class GenericTablePage extends React.Component {
               placeholder={renderedCell.placeholder}
               keyboardType={renderedCell.keyboardType || 'numeric'}
               onEndEditing={(target, value) => {
-                if (!this.onEndEditing) return;
-                this.onEndEditing(column.key, target, value);
+                if (!this.props.onEndEditing) return;
+                this.props.onEndEditing(column.key, target, value);
                 this.refreshData();
               }}
               onSubmitEditing={() => this.focusNextField(parseInt(rowId, 10))}
@@ -481,6 +481,7 @@ GenericTablePage.propTypes = {
   defaultSortKey: PropTypes.string,
   footerData: PropTypes.object,
   getFilteredSortedData: PropTypes.func,
+  onEndEditing: PropTypes.func,
   onRowPress: PropTypes.func,
   onSearchChange: PropTypes.func,
   onSelectionChange: PropTypes.func,
