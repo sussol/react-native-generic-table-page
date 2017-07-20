@@ -58,9 +58,9 @@ export class GenericTablePage extends React.Component {
     this.state = {
       dataSource: dataSource,
       searchTerm: '',
-      sortBy: props.defaultSortKey || '',
-      isAscending: props.defaultSortDirection ? props.defaultSortDirection === 'ascending' : true,
-      selection: props.selection || [],
+      sortBy: props.defaultSortKey,
+      isAscending: props.defaultSortDirection === 'ascending',
+      selection: props.selection,
       expandedRows: [],
     };
     this.cellRefsMap = {}; // { rowId: reference, rowId: reference, ...}
@@ -503,8 +503,11 @@ GenericTablePage.propTypes = {
 GenericTablePage.defaultProps = {
   columns: [],
   dataTableStyles: {},
+  defaultSortKey: '',
+  defaultSortDirection: 'ascending',
   pageStyles: {},
   rowHeight: 45,
+  selection: [],
 };
 
 const defaultStyles = StyleSheet.create({
