@@ -51,11 +51,11 @@ A callback with the array of ids representing all rows with a checkable cell tur
 #### selection (array)
 If selection is controlled externally, defines an array of ids of rows that are 'selected', i.e. a checkable cell is turned on in that row
 
-#### onRowPress (rowData)
-Called when a row is pressed with the rowData as the single argument. Should not be provided if rows are not pressable, or if renderExpansion is provided
-
 #### renderExpansion (rowData)
-Defines the component to be rendered in the expansion area if a row is pressed. Should not be used in conjuction with onRowPress (see above)
+Defines the component to be rendered in the expansion area if a row is pressed. Should not be used in conjunction with onRowPress (see below)
+
+#### onRowPress (rowData)
+Allows defining some custom behaviour on pressing a row, e.g. navigating to a drilled down view related to the row's data. Called when a row is pressed with the rowData as the single argument. Should not be provided if rows are not pressable, or if renderExpansion is provided
 
 #### rowHeight (integer)
 Sets the height of the rows in the data table.
