@@ -11,32 +11,57 @@ contains a searchable table.
 
 ## Usage
 
-The customisation can be done through either composition or inheritance. We recommend using composition. We have used inheritance successfully in the mSupply mobile project, but to keep a consistent react-style architecture we would prefer that future projects simply expose more props and use composition rather than using the method overriding.
-
-For working examples of usage, see [MoneyMob](https://github.com/sussol/moneymob) for composition, and [mSupply Mobile](https://github.com/sussol/mobile) for inheritance.
+For working examples of usage, see [mSupply Mobile](https://github.com/sussol/mobile).
 
 ### Required Props
 
-#### columns (array), or assign this.state.columns in the constructor if using inheritance
+#### columns (array)
 An array of objects defining each of the columns. Each entry must contain the 'key' (string), 'width' (integer), and 'title' (string) of the column. Each may optionally contain 'sortable' (boolean).
 
-#### data (array), or override getFilteredSortedData if using inheritance (see [below](#optional-methods))
+#### data (array)
 Defines the data displayed in the table, ready for sorting and filtering
 
 ### Optional Props
 
+#### refreshData(searchTerm, sortBy, isAscending)
+This method should filter the data to match the given parameters, and update the 'data' prop passed in. If provided, the generic table page will display a search bar. If not provided, the generic table page will take care of sorting internally, as well as filtering if 'searchKey' is provided (see below)
+
+#### searchKey (string)
+Defines the column to filter on when the user types in the search bar. If provided, the page will display a search bar. Don't provide if you control data filtering externally using refreshData (see above)
+
 #### defaultSortKey (string)
 Defines the column to sort on by default
 
-#### searchKey (string)
-Defines the column to filter on when the user types in the search bar
+#### defaultSortDirection (string)
+Either 'ascending' or 'descending', defines which direction to sort the data initially
 
 #### footerData (object)
 If passed in, defines data to display in a footer row that is always rendered at the bottom of the
 data table
 
-#### onRowPress (function)
-Called when a row is pressed with the rowData as the single argument
+#### renderCell(key, record)
+This method defines how each cell is rendered, given the column key and database record. The default method returns a simple string, which will be rendered in a static text cell. Alternative formats are listed in the method comment within index.js
+
+#### onEndEditing(key, rowData, newValue)
+Carries out any response required when an editable cell is edited. The obvious example is saving the new value to the database.
+
+#### onSelectionChange(newSelection)
+A callback with the array of ids representing all rows with a checkable cell turned 'on'
+
+#### selection (array)
+If selection is controlled externally, defines an array of ids of rows that are 'selected', i.e. a checkable cell is turned on in that row
+
+#### renderExpansion (rowData)
+Defines the component to be rendered in the expansion area if a row is pressed. Should not be used in conjunction with onRowPress (see below)
+
+#### renderTopLeftComponent (function)
+Defines the component to be rendered in the top left corner of the page, above the search bar and data table
+
+#### renderTopRightComponent (rowData)
+Defines the component to be rendered in the top right corner of the page, to the right of the search bar and above the data table
+
+#### onRowPress (rowData)
+Allows defining some custom behaviour on pressing a row, e.g. navigating to a drilled down view related to the row's data. Called when a row is pressed with the rowData as the single argument. Should not be provided if rows are not pressable, or if renderExpansion is provided
 
 #### rowHeight (integer)
 Sets the height of the rows in the data table.
@@ -62,6 +87,9 @@ See github.com/sussol/react-native-data-table for details
 #### searchBarColor (string)
 Sets the color of the search bar, see github.com/sussol/react-native-ui-components for details
 
+#### searchBarPlaceholderText (string)
+The placeholder text for the search bar
+
 #### colors (object)
 Sets the color of components within the data table, including
 * checkableCellDisabled
@@ -69,20 +97,5 @@ Sets the color of components within the data table, including
 * checkableCellUnchecked
 * editableCellUnderline
 
-#### topRoute (boolean)
-Whether this page is on top of the navigation stack. Determines whether it will refresh the page's data if a change is detected.
-
-### Optional Methods (If Using Inheritance)
-If inheriting, the class provided by this library will be extended by an implementing class. This implementation class has the opportunity to override methods to customise the look and functionality of the generic table page. See inline comments in index.js for more info.
-
-#### getFilteredSortedData(searchTerm, sortBy, isAscending)
-This method should return a refreshed realm results object containing data that matches the given parameters. If not overridden, must pass in 'data' to be sorted and filtered using the default method
-
-#### renderCell(key, record)
-This method defines how each cell is rendered, given the column key and database record. The default method returns a simple string, which will be rendered in a static text cell. Alternative formats are listed in the method comment within index.js
-
-#### onRowPress(key, rowData)
-Carries out any response required to a row being pressed. Should not be overridden if the rows are not pressable.
-
-#### onEndEditing(key, rowData, newValue)
-Carries out any response required when an editable cell is edited. The obvious example is saving the new value to the database.
+#### children (array)
+Any children passed in will be rendered below the data table (useful for modals)

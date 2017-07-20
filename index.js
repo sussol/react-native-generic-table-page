@@ -18,7 +18,7 @@ import {
   Row,
 } from 'react-native-data-table';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { ListView } from 'realm/react-native';
+import { ListView } from 'realm/react-native'; // TODO remove realm as dependency
 import { SearchBar } from 'react-native-ui-components';
 
 import { filterObjectArray, sortObjectArray } from './utilities';
@@ -27,7 +27,7 @@ import { filterObjectArray, sortObjectArray } from './utilities';
  * Provides a generic implementation of a standard page in a data-centric app, which
  * contains a searchable table. Should always be overridden, in particular the
  * following methods and instance variables (fields):
- * @method getFilteredSortedData(searchTerm, sortBy, isAscending) Should return updated data
+ * @method refreshData(searchTerm, sortBy, isAscending) Should update data prop based on filters
  * @method renderCell(key, record) Should define what to render in a cell with the
  *         											 given column key and database record
  * @method onRowPress(key, rowData) Should define behaviour when a row is pressed,
@@ -56,23 +56,17 @@ export class GenericTablePage extends React.Component {
       rowHasChanged: (row1, row2) => row1 !== row2,
     });
     this.state = {
-      columns: props.columns || [],
       dataSource: dataSource,
       searchTerm: '',
-      sortBy: props.defaultSortKey || '',
-      isAscending: true,
-      selection: [],
+      sortBy: props.defaultSortKey,
+      isAscending: props.defaultSortDirection === 'ascending',
+      selection: props.selection,
       expandedRows: [],
-      modalKey: null,
-      pageContentModalIsOpen: false,
     };
     this.cellRefsMap = {}; // { rowId: reference, rowId: reference, ...}
     this.dataTableRef = null;
-    this.dataTypesSynchronised = [];
     this.onSearchChange = this.onSearchChange.bind(this);
     this.onColumnSort = this.onColumnSort.bind(this);
-    this.openModal = this.openModal.bind(this);
-    this.closeModal = this.closeModal.bind(this);
     this.focusNextField = this.focusNextField.bind(this);
     this.renderFooter = this.renderFooter.bind(this);
     this.renderHeader = this.renderHeader.bind(this);
@@ -85,12 +79,12 @@ export class GenericTablePage extends React.Component {
     this.refreshData();
   }
 
-  /**
-   * Refresh data every time the page becomes the top route, so that changes will show
-   * when a user returns to the page using the back button.
-   */
-  componentWillReceiveProps(props) {
-    if (!this.props.topRoute && props.topRoute) this.refreshData();
+  componentWillReceiveProps(nextProps) {
+    if (this.props.data !== nextProps.data) this.setDataSource(nextProps.data);
+    // If selection is controlled externally, update the state internally to match
+    if (nextProps.selection && this.props.selection !== nextProps.selection) {
+      this.setState({ selection: nextProps.selection });
+    }
   }
 
   onSearchChange(searchTerm) {
@@ -123,6 +117,7 @@ export class GenericTablePage extends React.Component {
       newSelection.push(rowData.id);
     }
     this.setState({ selection: newSelection });
+    if (this.props.onSelectionChange) this.props.onSelectionChange(newSelection);
   }
 
   /**
@@ -139,12 +134,8 @@ export class GenericTablePage extends React.Component {
     this.setState({ expandedRows: newExpandedRows });
   }
 
-  openModal(key) {
-    this.setState({ modalKey: key, pageContentModalIsOpen: true });
-  }
-
-  closeModal() {
-    this.setState({ pageContentModalIsOpen: false });
+  setDataSource(data) {
+    this.setState({ dataSource: this.state.dataSource.cloneWithRows(data) });
   }
 
   scrollTableToRow(rowId) {
@@ -167,17 +158,21 @@ export class GenericTablePage extends React.Component {
 
   refreshData() {
     this.cellRefsMap = {};
-    const { dataSource, searchTerm, sortBy, isAscending } = this.state;
-    const filteredSortedData = this.getFilteredSortedData(searchTerm, sortBy, isAscending);
-    this.setState({ dataSource: dataSource.cloneWithRows(filteredSortedData) });
+    if (this.props.refreshData) {
+      const { searchTerm, sortBy, isAscending } = this.state;
+      this.props.refreshData(searchTerm, sortBy, isAscending);
+    } else { // No onRefreshData method passed through props, run default filter/sort
+      this.filterAndSortData();
+    }
   }
 
-  getFilteredSortedData(searchTerm, sortBy, isAscending) {
+  filterAndSortData() {
+    const { searchTerm, sortBy, isAscending } = this.state;
     const { data, searchKey } = this.props;
     // Filter by searchKey, or if none was passed in props, return full set of data
     let results = searchKey ? filterObjectArray(data, searchKey, searchTerm) : data;
     results = sortObjectArray(results, sortBy, isAscending);
-    return results;
+    this.setDataSource(results);
   }
 
 /**
@@ -217,17 +212,17 @@ export class GenericTablePage extends React.Component {
  *    };
  */
   renderCell(key, record) {
-    return record[key];
+    return this.props.renderCell ? this.props.renderCell(key, record) : record[key];
   }
 
   renderHeader() {
     // If no columns have titles, don't render a header
-    if (!this.state.columns.find((column) => column.title && column.title.length > 0)) {
+    if (!this.props.columns.find((column) => column.title && column.title.length > 0)) {
       return null;
     }
     const { header, headerCell, rightMostCell, text } = this.props.dataTableStyles;
     const headerCells = [];
-    this.state.columns.forEach((column, index, columns) => {
+    this.props.columns.forEach((column, index, columns) => {
       let textStyle;
       let cellStyle = index !== columns.length - 1 ? headerCell : [headerCell, rightMostCell];
 
@@ -269,6 +264,7 @@ export class GenericTablePage extends React.Component {
 
   renderRow(rowData, sectionId, rowId) {
     const { checkableCell, rightMostCell, row, text } = this.props.dataTableStyles;
+    const { colors = {} } = this.props;
     // If the rowData has the function 'isValid', check it to see the object still exists
     if (typeof rowData.isValid === 'function' && !rowData.isValid()) {
       return null; // Don't render if the row's data has been deleted
@@ -276,9 +272,10 @@ export class GenericTablePage extends React.Component {
     const cells = [];
     const isExpanded = this.state.expandedRows.includes(rowData.id);
     // Make rows alternate background colour
-    const rowStyle = rowId % 2 === 1 ? row : [row, { backgroundColor: 'white' }];
+    const { alternateRow = 'white' } = colors;
+    const rowStyle = rowId % 2 === 1 ? row : [row, { backgroundColor: alternateRow }];
 
-    this.state.columns.forEach((column, index, columns) => {
+    this.props.columns.forEach((column, index, columns) => {
       let textStyle;
       switch (column.alignText) {
         case 'left':
@@ -321,7 +318,6 @@ export class GenericTablePage extends React.Component {
             iconChecked = 'md-radio-button-on';
             iconNotChecked = 'md-radio-button-off';
           }
-          const { colors } = this.props;
           cell = (
             <CheckableCell
               key={column.key}
@@ -359,8 +355,8 @@ export class GenericTablePage extends React.Component {
               placeholder={renderedCell.placeholder}
               keyboardType={renderedCell.keyboardType || 'numeric'}
               onEndEditing={(target, value) => {
-                if (!this.onEndEditing) return;
-                this.onEndEditing(column.key, target, value);
+                if (!this.props.onEndEditing) return;
+                this.props.onEndEditing(column.key, target, value);
                 this.refreshData();
               }}
               onSubmitEditing={() => this.focusNextField(parseInt(rowId, 10))}
@@ -388,16 +384,17 @@ export class GenericTablePage extends React.Component {
       }
       cells.push(cell);
     });
+    let onPressRow;
+    if (this.props.renderExpansion) onPressRow = () => this.onExpandablePress(rowData);
+    else if (this.props.onRowPress) onPressRow = () => this.props.onRowPress(rowData);
     return (
       <Row
         style={rowStyle}
-        renderExpansion={this.renderExpansion && (() => this.renderExpansion(rowData))}
+        renderExpansion={this.props.renderExpansion ?
+                         () => this.props.renderExpansion(rowData) :
+                         undefined}
         isExpanded={isExpanded}
-        onPress={
-          this.renderExpansion && (() => this.onExpandablePress(rowData))
-            || this.onRowPress && (() => this.onRowPress(rowData))
-            || this.props.onRowPress && (() => this.props.onRowPress(rowData))
-        }
+        onPress={onPressRow}
       >
         {cells}
       </Row>
@@ -411,6 +408,7 @@ export class GenericTablePage extends React.Component {
         onChange={this.onSearchChange}
         style={pageStyles.searchBar}
         color={searchBarColor}
+        placeholder={this.props.searchBarPlaceholderText}
       />);
   }
 
@@ -440,21 +438,37 @@ export class GenericTablePage extends React.Component {
   }
 
   render() {
-    const { hideSearchBar, pageStyles } = this.props;
+    const {
+      searchKey,
+      refreshData,
+      pageStyles,
+      renderTopLeftComponent,
+      renderTopRightComponent,
+    } = this.props;
     return (
       <View style={[defaultStyles.pageContentContainer, pageStyles.pageContentContainer]}>
         <View style={[defaultStyles.container, pageStyles.container]}>
           <View style={[defaultStyles.pageTopSectionContainer, pageStyles.pageTopSectionContainer]}>
-            {!hideSearchBar &&
+            {(searchKey || refreshData || renderTopLeftComponent) &&
               <View
                 style={[defaultStyles.pageTopLeftSectionContainer,
                         pageStyles.pageTopLeftSectionContainer]}
               >
-                {this.renderSearchBar()}
+                {renderTopLeftComponent && renderTopLeftComponent()}
+                {(searchKey || refreshData) && this.renderSearchBar()}
+              </View>
+            }
+            {(renderTopRightComponent) &&
+              <View
+                style={[defaultStyles.pageTopRightSectionContainer,
+                        pageStyles.pageTopRightSectionContainer]}
+              >
+                {renderTopRightComponent()}
               </View>
             }
           </View>
           {this.renderDataTable()}
+          {this.props.children}
         </View>
       </View>
     );
@@ -462,25 +476,38 @@ export class GenericTablePage extends React.Component {
 }
 
 GenericTablePage.propTypes = {
+  children: PropTypes.any,
   colors: PropTypes.object,
   columns: PropTypes.array,
-  data: PropTypes.array,
+  data: PropTypes.any,
   dataTableStyles: PropTypes.object,
+  defaultSortDirection: PropTypes.string,
   defaultSortKey: PropTypes.string,
   footerData: PropTypes.object,
-  hideSearchBar: PropTypes.bool,
+  onEndEditing: PropTypes.func,
   onRowPress: PropTypes.func,
+  onSelectionChange: PropTypes.func,
   pageStyles: PropTypes.object,
+  refreshData: PropTypes.func,
+  renderCell: PropTypes.func,
+  renderExpansion: PropTypes.func,
+  renderTopLeftComponent: PropTypes.func,
+  renderTopRightComponent: PropTypes.func,
   rowHeight: PropTypes.number,
   searchBarColor: PropTypes.string,
+  searchBarPlaceholderText: PropTypes.string,
   searchKey: PropTypes.string,
-  topRoute: PropTypes.bool,
+  selection: PropTypes.array,
 };
 
 GenericTablePage.defaultProps = {
+  columns: [],
   dataTableStyles: {},
+  defaultSortKey: '',
+  defaultSortDirection: 'ascending',
   pageStyles: {},
   rowHeight: 45,
+  selection: [],
 };
 
 const defaultStyles = StyleSheet.create({
