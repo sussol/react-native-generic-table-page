@@ -27,7 +27,7 @@ import { filterObjectArray, sortObjectArray } from './utilities';
  * Provides a generic implementation of a standard page in a data-centric app, which
  * contains a searchable table. Should always be overridden, in particular the
  * following methods and instance variables (fields):
- * @method getFilteredSortedData(searchTerm, sortBy, isAscending) Should return updated data
+ * @method refreshData(searchTerm, sortBy, isAscending) Should update data prop based on filters
  * @method renderCell(key, record) Should define what to render in a cell with the
  *         											 given column key and database record
  * @method onRowPress(key, rowData) Should define behaviour when a row is pressed,
@@ -484,10 +484,8 @@ GenericTablePage.propTypes = {
   defaultSortDirection: PropTypes.string,
   defaultSortKey: PropTypes.string,
   footerData: PropTypes.object,
-  getFilteredSortedData: PropTypes.func,
   onEndEditing: PropTypes.func,
   onRowPress: PropTypes.func,
-  onSearchChange: PropTypes.func,
   onSelectionChange: PropTypes.func,
   pageStyles: PropTypes.object,
   refreshData: PropTypes.func,
@@ -500,7 +498,6 @@ GenericTablePage.propTypes = {
   searchBarPlaceholderText: PropTypes.string,
   searchKey: PropTypes.string,
   selection: PropTypes.array,
-  topRoute: PropTypes.bool,
 };
 
 GenericTablePage.defaultProps = {
