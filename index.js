@@ -60,7 +60,7 @@ export class GenericTablePage extends React.Component {
       searchTerm: '',
       sortBy: props.defaultSortKey || '',
       isAscending: props.defaultSortDirection ? props.defaultSortDirection === 'ascending' : true,
-      selection: [],
+      selection: props.selection || [],
       expandedRows: [],
     };
     this.cellRefsMap = {}; // { rowId: reference, rowId: reference, ...}
@@ -81,6 +81,10 @@ export class GenericTablePage extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.data !== nextProps.data) this.setDataSource(nextProps.data);
+    // If selection is controlled externally, update the state internally to match
+    if (nextProps.selection && this.props.selection !== nextProps.selection) {
+      this.setState({ selection: nextProps.selection });
+    }
   }
 
   onSearchChange(searchTerm) {
@@ -495,6 +499,7 @@ GenericTablePage.propTypes = {
   searchBarColor: PropTypes.string,
   searchBarPlaceholderText: PropTypes.string,
   searchKey: PropTypes.string,
+  selection: PropTypes.array,
   topRoute: PropTypes.bool,
 };
 
