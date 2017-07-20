@@ -54,6 +54,12 @@ If selection is controlled externally, defines an array of ids of rows that are 
 #### renderExpansion (rowData)
 Defines the component to be rendered in the expansion area if a row is pressed. Should not be used in conjunction with onRowPress (see below)
 
+#### renderTopLeftComponent (function)
+Defines the component to be rendered in the top left corner of the page, above the search bar and data table
+
+#### renderTopRightComponent (rowData)
+Defines the component to be rendered in the top right corner of the page, to the right of the search bar and above the data table
+
 #### onRowPress (rowData)
 Allows defining some custom behaviour on pressing a row, e.g. navigating to a drilled down view related to the row's data. Called when a row is pressed with the rowData as the single argument. Should not be provided if rows are not pressable, or if renderExpansion is provided
 
