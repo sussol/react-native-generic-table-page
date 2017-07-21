@@ -1,6 +1,6 @@
 {
   "name": "react-native-generic-table-page",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A customisable page containing a searchable table of data from realm for react native",
   "repository": "https://github.com/sussol/react-native-generic-table-page.git",
   "author": "Sustainable Solutions (NZ) Ltd.",
@@ -25,8 +25,8 @@
   "peerDependencies": {
     "react": "*",
     "prop-types": "*",
-    "react-native": "^0.35.0",
+    "react-native": "*",
     "react-native-vector-icons": "*",
-    "realm": "^0.14.1"
+    "realm": "*"
   }
 }
