@@ -145,14 +145,31 @@ export class GenericTablePage extends React.Component {
     if (this.dataTableRef) this.dataTableRef.scrollTo({ y: yValue });
   }
 
-  focusNextField(currentCellRef) {
-    const nextCellRef = currentCellRef + 1;
-    if (this.cellRefsMap[nextCellRef]) {
-      this.scrollTableToRow(nextCellRef);
-      this.cellRefsMap[nextCellRef].focus();
+  focusNextField(currentRowId, currentColumnIndex) {
+    const currentRowCellRefs = this.cellRefsMap[currentRowId];
+    // Find the next [row][column] indexes with a valid cell ref
+    let nextRowId = currentRowId;
+    let nextColumnIndex = currentColumnIndex + 1;
+    let nextCellRef;
+    for (nextRowId; this.cellRefsMap[nextRowId]; nextRowId++) {
+      for (nextColumnIndex;
+           nextColumnIndex < this.cellRefsMap[nextRowId].length;
+           nextColumnIndex++) {
+        if (this.cellRefsMap[nextRowId][nextColumnIndex]) {
+          nextCellRef = this.cellRefsMap[nextRowId][nextColumnIndex];
+          break;
+        }
+      }
+      if (nextCellRef) break; // A valid cell ref was found in this row, no need to move on
+      nextColumnIndex = 0; // Otherwise reset column index and look through the next row
+    }
+
+    if (nextCellRef) {
+      this.scrollTableToRow(nextRowId);
+      nextCellRef.focus();
     } else {
       // Protect against crash from null being in the Map.
-      if (this.cellRefsMap[currentCellRef]) this.cellRefsMap[currentCellRef].blur();
+      if (currentRowCellRefs[currentColumnIndex]) currentRowCellRefs[currentColumnIndex].blur();
     }
   }
 
@@ -275,7 +292,7 @@ export class GenericTablePage extends React.Component {
     const { alternateRow = 'white' } = colors;
     const rowStyle = rowId % 2 === 1 ? row : [row, { backgroundColor: alternateRow }];
 
-    this.props.columns.forEach((column, index, columns) => {
+    this.props.columns.forEach((column, columnIndex, columns) => {
       let textStyle;
       switch (column.alignText) {
         case 'left':
@@ -290,7 +307,7 @@ export class GenericTablePage extends React.Component {
           break;
       }
 
-      let cellStyle = index !== columns.length - 1 ?
+      let cellStyle = columnIndex !== columns.length - 1 ?
                             [this.props.dataTableStyles.cell] :
                             [this.props.dataTableStyles.cell, rightMostCell];
       cellStyle.push({ height: this.props.rowHeight });
@@ -346,7 +363,10 @@ export class GenericTablePage extends React.Component {
           cell = (
             <EditableCell
               key={column.key}
-              refCallback={(reference) => { this.cellRefsMap[rowId] = reference; }}
+              refCallback={(reference) => {
+                if (!this.cellRefsMap[rowId]) this.cellRefsMap[rowId] = [];
+                this.cellRefsMap[rowId][columnIndex] = reference;
+              }}
               style={cellStyle}
               textStyle={textStyle}
               width={column.width}
@@ -359,7 +379,7 @@ export class GenericTablePage extends React.Component {
                 this.props.onEndEditing(column.key, target, value);
                 this.refreshData();
               }}
-              onSubmitEditing={() => this.focusNextField(parseInt(rowId, 10))}
+              onSubmitEditing={() => this.focusNextField(parseInt(rowId, 10), columnIndex)}
               target={rowData}
               value={renderedCell.cellContents}
               underlineColorAndroid={this.props.colors.editableCellUnderline}
