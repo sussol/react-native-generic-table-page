@@ -7,8 +7,8 @@
   "license": "MIT",
   "main": "index.js",
   "dependencies": {
-    "react-native-ui-components": "^0.3.0",
-    "react-native-data-table": "^0.1.0"
+    "react-native-ui-components": "^0.4.2",
+    "react-native-data-table": "^0.1.4"
   },
   "devDependencies": {
     "babel-core": "^6.17.0",
