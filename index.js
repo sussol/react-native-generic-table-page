@@ -7,6 +7,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import isDeepEqual from 'deep-equal';
 import { StyleSheet, View } from 'react-native';
 import {
   Cell,
@@ -80,7 +81,7 @@ export class GenericTablePage extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.data !== nextProps.data) this.setDataSource(nextProps.data);
+    if (!isDeepEqual(this.props.data, nextProps.data)) this.setDataSource(nextProps.data);
     // If selection is controlled externally, update the state internally to match
     if (nextProps.selection && this.props.selection !== nextProps.selection) {
       this.setState({ selection: nextProps.selection });
