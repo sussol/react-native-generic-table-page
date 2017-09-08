@@ -230,7 +230,7 @@ export class GenericTablePage extends React.Component {
  *    };
  */
   renderCell(key, record) {
-    return this.props.renderCell ? this.props.renderCell(key, record) : record[key];
+    return this.props.renderCell ? this.props.renderCell(key, record) : record[key] || '';
   }
 
   renderHeader() {
