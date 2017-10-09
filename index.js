@@ -81,7 +81,11 @@ export class GenericTablePage extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (!isDeepEqual(this.props.data, nextProps.data)) this.setDataSource(nextProps.data);
+    const compareData = nextProps.isDataCircular ?
+                        () => this.props.data !== nextProps.data :
+                        () => !isDeepEqual(this.props.data, nextProps.data);
+
+    if (compareData()) this.setDataSource(nextProps.data);
     // If selection is controlled externally, update the state internally to match
     if (nextProps.selection && this.props.selection !== nextProps.selection) {
       this.setState({ selection: nextProps.selection });
@@ -519,6 +523,7 @@ GenericTablePage.propTypes = {
   searchBarPlaceholderText: PropTypes.string,
   searchKey: PropTypes.string,
   selection: PropTypes.array,
+  isDataCircular: PropTypes.bool,
 };
 
 GenericTablePage.defaultProps = {
@@ -529,6 +534,7 @@ GenericTablePage.defaultProps = {
   pageStyles: {},
   rowHeight: 45,
   selection: [],
+  isDataCircular: false,
 };
 
 const defaultStyles = StyleSheet.create({
