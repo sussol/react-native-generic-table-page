@@ -441,6 +441,7 @@ export class GenericTablePage extends React.Component {
   // the last row rendered. Alleviates the problem of the keyboard covering the last rows
   // of the table.
   renderFooter() {
+    if (this.props.renderDataTableFooter) return this.props.renderDataTableFooter();
     return (
       <View>
         {this.props.footerData && this.renderRow(this.props.footerData, 0, 0)}
@@ -518,6 +519,7 @@ GenericTablePage.propTypes = {
   renderExpansion: PropTypes.func,
   renderTopLeftComponent: PropTypes.func,
   renderTopRightComponent: PropTypes.func,
+  renderDataTableFooter: PropTypes.func,
   rowHeight: PropTypes.number,
   searchBarColor: PropTypes.string,
   searchBarPlaceholderText: PropTypes.string,
