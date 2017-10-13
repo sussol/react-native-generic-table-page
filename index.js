@@ -427,6 +427,8 @@ export class GenericTablePage extends React.Component {
   }
 
   renderSearchBar() {
+    if (this.props.hideSearchBar) return null;
+    
     const { pageStyles, searchBarColor } = this.props;
     return (
       <SearchBar
@@ -526,6 +528,7 @@ GenericTablePage.propTypes = {
   searchKey: PropTypes.string,
   selection: PropTypes.array,
   isDataCircular: PropTypes.bool,
+  hideSearchBar: PropTypes.bool,
 };
 
 GenericTablePage.defaultProps = {
@@ -537,6 +540,7 @@ GenericTablePage.defaultProps = {
   rowHeight: 45,
   selection: [],
   isDataCircular: false,
+  hideSearchBar: false,
 };
 
 const defaultStyles = StyleSheet.create({
