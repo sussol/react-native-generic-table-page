@@ -285,7 +285,7 @@ export class GenericTablePage extends React.Component {
   }
 
   renderRow(rowData, sectionId, rowId) {
-    const { checkableCell, rightMostCell, row, text } = this.props.dataTableStyles;
+    const { checkableCell, rightMostCell, row, expandedRow, text } = this.props.dataTableStyles;
     const { colors = {} } = this.props;
     // If the rowData has the function 'isValid', check it to see the object still exists
     if (typeof rowData.isValid === 'function' && !rowData.isValid()) {
@@ -295,7 +295,8 @@ export class GenericTablePage extends React.Component {
     const isExpanded = this.state.expandedRows.includes(rowData.id);
     // Make rows alternate background colour
     const { alternateRow = 'white' } = colors;
-    const rowStyle = rowId % 2 === 1 ? row : [row, { backgroundColor: alternateRow }];
+    const normalRowStyle = rowId % 2 === 1 ? row : [row, { backgroundColor: alternateRow }];
+    const expandedRowStyle = rowId % 2 === 1 ? expandedRow : [expandedRow, { backgroundColor: alternateRow }];
 
     this.props.columns.forEach((column, columnIndex, columns) => {
       let textStyle;
@@ -414,7 +415,8 @@ export class GenericTablePage extends React.Component {
     else if (this.props.onRowPress) onPressRow = () => this.props.onRowPress(rowData);
     return (
       <Row
-        style={rowStyle}
+        style={normalRowStyle}
+        expandedRowStyle={expandedRowStyle}
         renderExpansion={this.props.renderExpansion ?
                          () => this.props.renderExpansion(rowData) :
                          undefined}
@@ -428,7 +430,7 @@ export class GenericTablePage extends React.Component {
 
   renderSearchBar() {
     if (this.props.hideSearchBar) return null;
-    
+
     const { pageStyles, searchBarColor } = this.props;
     return (
       <SearchBar
