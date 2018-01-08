@@ -26,7 +26,7 @@
   "peerDependencies": {
     "prop-types": "*",
     "react": "*",
-    "react-native": ">= 44.0.0",
+    "react-native": ">= 0.44.0",
     "react-native-vector-icons": "*",
     "realm": "*"
   }
