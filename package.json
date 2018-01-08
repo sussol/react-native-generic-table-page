@@ -8,8 +8,8 @@
   "main": "index.js",
   "dependencies": {
     "deep-equal": "^1.0.1",
-    "react-native-data-table": "git://github.com/sussol/react-native-data-table.git#upgrade-react-native-vector-icons",
-    "react-native-ui-components": "git://github.com/sussol/react-native-ui-components.git#fix-deprecated-proptypes"
+    "react-native-data-table": "^0.2.0",
+    "react-native-ui-components": "^0.5.0"
   },
   "devDependencies": {
     "babel-core": "^6.17.0",
