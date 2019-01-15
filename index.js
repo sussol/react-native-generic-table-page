@@ -21,6 +21,7 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import { ListView } from 'realm/react-native'; // TODO remove realm as dependency
 import { SearchBar } from 'react-native-ui-components';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import { filterObjectArray, sortObjectArray } from './utilities';
 
@@ -497,7 +498,9 @@ export class GenericTablePage extends React.Component {
               </View>
             }
           </View>
-          {this.renderDataTable()}
+          <KeyboardAwareScrollView>
+            {this.renderDataTable()}
+          </KeyboardAwareScrollView>
           {this.props.children}
         </View>
       </View>
